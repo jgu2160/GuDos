@@ -5612,7 +5612,7 @@ small {
   transition: .2s ease-out;
   cursor: pointer; }
   .btn:hover, .btn-large:hover {
-    background-color: #2bbbad; }
+    background-color: #00bcd4; }
 
 .btn-floating {
   display: inline-block;
@@ -5996,7 +5996,7 @@ select:focus {
 
 button:focus {
   outline: none;
-  background-color: #2ab7a9; }
+  background-color: #00bcd4; }
 
 label {
   font-size: 0.8rem;

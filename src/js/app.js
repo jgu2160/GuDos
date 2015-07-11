@@ -5,22 +5,26 @@ todo.Todo = function(data) {
     this.done = m.prop(false);
 };
 
-todo.TodoList = Array;
+todo.save = function(todos) {
+    localStorage["gudos.todos"] = JSON.stringify(todos);
+};
+todo.load = function() {
+    return JSON.parse(localStorage["gudos.todos"] || "[]");
+};
+
+todo.TodoList = todo.load();
 
 todo.vm = (function() {
     var vm = {};
     vm.init = function() {
-        //a running list of todos
-        vm.list = new todo.TodoList();
-
-        //a slot to store the name of a new todo before it is created
+        vm.list = todo.TodoList;
         vm.description = m.prop("");
-
-        //adds a todo to the list, and clears the description field for user convenience
         vm.add = function() {
+            vm.list = todo.TodoList;
             if (vm.description()) {
                 vm.list.push(new todo.Todo({description: vm.description()}));
                 vm.description("");
+                todo.save(vm.list);
             }
         };
     };
@@ -41,19 +45,23 @@ todo.view = function() {
             m(styles_css),
         ]),
         m("body", [
-            m("h1", "GuDos"),
-            m("input", {onchange: m.withAttr("value", todo.vm.description), value: todo.vm.description()}),
-            m("button", {onclick: todo.vm.add}, "Add"),
-            m("table", [
-                todo.vm.list.map(function(task, index) {
-                    return m("tr", [
-                        m("td", [
-                            m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
-                        ]),
-                        m("td", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
-                    ]);
-                })
-            ])
+            m("div", {id: "form", class: "container z-depth-3"}, [
+                m("div", {class: "input-field"}, [
+                    m("input", {onchange: m.withAttr("value", todo.vm.description), type: "text", id: "todo-input", value: todo.vm.description()}),
+                    m("label", {for: "todo-input"}, "Enter GuDo"),
+                ]),
+            m("button", {onclick: todo.vm.add, class: "waves-effect waves-light btn"}, "Add"),
+            ]),
+            m("div", {class: "container"}, [
+                m("ul", {class: "collection"}, [
+                    todo.vm.list.map(function(task, index) {
+                        return m("li", {class: "collection-item"}, [
+                            m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done(), class:"filled-in", id: task.description()}),
+                            m("label", {for: task.description(), style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
+                        ]);
+                    })
+                ]),
+            ]),
         ])
     ]);
 };
