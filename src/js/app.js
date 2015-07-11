@@ -8,8 +8,16 @@ todo.Todo = function(data) {
 todo.save = function(todos) {
     localStorage["gudos.todos"] = JSON.stringify(todos);
 };
+
 todo.load = function() {
-    return JSON.parse(localStorage["gudos.todos"] || "[]");
+    var todos = JSON.parse(localStorage["gudos.todos"] || "[]");
+    if (todos.length > 0) {
+        return todos.map(function(el) {
+            return new todo.Todo(el);
+        });
+    } else {
+        return todos;
+    }
 };
 
 todo.TodoList = todo.load();
@@ -20,7 +28,6 @@ todo.vm = (function() {
         vm.list = todo.TodoList;
         vm.description = m.prop("");
         vm.add = function() {
-            vm.list = todo.TodoList;
             if (vm.description()) {
                 vm.list.push(new todo.Todo({description: vm.description()}));
                 vm.description("");
