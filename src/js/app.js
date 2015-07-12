@@ -2,7 +2,7 @@ var todo = {};
 
 todo.Todo = function(data) {
     this.description = m.prop(data.description);
-    this.done = m.prop(false);
+    this.done = m.prop(data.done);
 };
 
 todo.save = function(todos) {
@@ -12,27 +12,35 @@ todo.save = function(todos) {
 todo.load = function() {
     var todos = JSON.parse(localStorage["gudos.todos"] || "[]");
     if (todos.length > 0) {
-        return todos.map(function(el) {
+        var newdos =  todos.map(function(el) {
             return new todo.Todo(el);
         });
+        return newdos;
     } else {
         return todos;
     }
 };
 
-todo.TodoList = todo.load();
-
 todo.vm = (function() {
     var vm = {};
     vm.init = function() {
-        vm.list = todo.TodoList;
+        vm.list = todo.load();
         vm.description = m.prop("");
         vm.add = function() {
             if (vm.description()) {
-                vm.list.push(new todo.Todo({description: vm.description()}));
+                vm.list.push(new todo.Todo({description: vm.description(), done: false}));
                 vm.description("");
                 todo.save(vm.list);
             }
+        };
+        vm.updateStatus = function() {
+            var desc = this.id;
+            var done = this.checked;
+            var list = JSON.parse(JSON.stringify(vm.list));
+            var index = findWithAttr(list, "description", desc);
+            list[index] = {description: desc, done: done};
+            todo.save(list);
+            vm.list = todo.load();
         };
     };
     return vm;
@@ -63,7 +71,7 @@ todo.view = function() {
                 m("ul", {class: "collection"}, [
                     todo.vm.list.map(function(task, index) {
                         return m("li", {class: "collection-item"}, [
-                            m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done(), class:"filled-in", id: task.description()}),
+                            m("input[type=checkbox]", {onclick: todo.vm.updateStatus, checked: task.done(), class:"filled-in", id: task.description()}),
                             m("label", {for: task.description(), style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
                         ]);
                     })
@@ -74,3 +82,11 @@ todo.view = function() {
 };
 
 m.mount(document, {controller: todo.controller, view: todo.view});
+
+function findWithAttr(array, attr, value) {
+    for(var i = 0; i < array.length; i += 1) {
+        if(array[i][attr] === value) {
+            return i;
+        }
+    }
+}
