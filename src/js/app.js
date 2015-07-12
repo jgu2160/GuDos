@@ -65,7 +65,9 @@ todo.view = function() {
                     m("input", {onchange: m.withAttr("value", todo.vm.description), type: "text", id: "todo-input", value: todo.vm.description()}),
                     m("label", {for: "todo-input"}, "Enter GuDo"),
                 ]),
-            m("button", {onclick: todo.vm.add, class: "waves-effect waves-light btn"}, "Add"),
+            m("div", {class: "center-align"}, [
+                    m("button", {onclick: todo.vm.add, class: "center-align waves-effect waves-light btn"}, "Add"),
+            ]),
             ]),
             m("div", {class: "container"}, [
                 m("ul", {class: "collection"}, [
